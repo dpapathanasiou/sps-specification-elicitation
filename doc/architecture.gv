@@ -1,0 +1,103 @@
+digraph G {
+  /* General settings */
+  compound = true
+  rankdir = "TB"
+
+  node [
+    shape = rectangle
+  ]
+
+  /* Node definitions */
+  user [
+    label = "Human\nUser"
+    shape = diamond
+    style = rounded
+  ]
+
+  visualizer [
+    label = "Tool:\lModel\lVisualizer"
+    style = rounded
+  ]
+
+  evaluator [
+    label = "Tool:\lModel\lEvaluator"
+    style = rounded
+  ]
+
+  db [
+    label = "Tool:\lSemantic Database\l(model version diffs)"
+    style = rounded
+  ]
+
+  subgraph algobot {
+    cluster = true // designate this subgraph as a cluster in order to enable the boundary box
+    style = filled
+    color = pink
+
+    algo [
+      label = "Algorithm Bot"
+    ]
+
+    pipeline [
+      label = <
+<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0">
+  <TR><TD PORT="top">API</TD></TR>
+  <TR><TD PORT="bot">RAG Pipeline</TD></TR>
+</TABLE>>
+      shape = plain
+    ]
+
+    corpus [
+      label = "RAG Corpus: Alloy\ldocs and tutorials,\lmodel examples, etc."
+    ]
+
+    llm [
+      label = "LLM: code-focused,\lguided by prompts"
+    ]
+
+    algo -> pipeline
+    pipeline -> algo
+
+    pipeline -> corpus
+    corpus -> pipeline
+
+    pipeline -> llm
+    llm -> pipeline
+
+  }
+
+  /* Edges */
+  user:w -> algo [
+    lhead = algobot
+  ]
+  algo -> user:e  [
+    ltail = algobot
+  ]
+
+  llm -> evaluator [
+    xlabel = "LLM generated\l model code\l "
+    ltail = algobot
+  ]
+  evaluator -> llm [
+    label =     "\l \l                    \l                     \l        "
+    headlabel = "\l \l Validation results,\l plus visualizations,\l(if any)"
+    minlen = 6
+    labeldistance = 10
+    lhead = algobot
+  ]
+
+  evaluator -> visualizer [
+    label = "\lModel code\l(when valid)"
+  ]
+  visualizer -> evaluator  [
+    label = "Visualization\lresults"
+  ]
+
+  evaluator -> db
+
+  {
+    rank = same
+    evaluator; visualizer
+  }
+
+}
