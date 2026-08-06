@@ -18,7 +18,7 @@ model = LiteLLMModel(
 
 
 config = RAGConfig()
-print(config)
+print(config)  # sanity check env
 rebuild_index(config)
 
 
@@ -27,8 +27,6 @@ agent = ToolCallingAgent(
     model=model,
 )
 
-# TODO: loop along these lines
-# https://huggingface.co/docs/smolagents/main/en/conceptual_guides/intro_agents#an-introduction-to-agentic-systems
 
 while True:
     user_input = input("What's on your mind? (/quit to stop) ")
