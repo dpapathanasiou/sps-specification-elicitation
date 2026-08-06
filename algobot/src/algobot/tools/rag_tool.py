@@ -1,24 +1,33 @@
-from smolagents.tools import tool
+from smolagents.tools import Tool
 
 from algobot.rag_config import RAGConfig
 
 
-@tool
-def answer_with_rag_context(config: RAGConfig, question: str) -> str:
-    """Answers the given question with the corpus documents associated with the associated RAG configuration.
+class RAGTool(Tool):
+    name = "rag_tool"
+    description = "Answers the given query using the corpus documents associated with the vector store, from the RAG configuration."
+    inputs = {
+        "query": {
+            "type": "string",
+            "description": "The query to perform. This should be semantically close to your target documents. Use the affirmative form rather than a question.",
+        }
+    }
+    output_type = "string"
 
-    Args:
-        config: The RAG configuration, which has the docs and prompt defined
-        question: The user's input, as a natural language string
+    def __init__(self, config: RAGConfig, **kwargs):
+        super().__init__(**kwargs)
+        self.config = config
 
-    Returns:
-        str: An Alloy model, based on the user user's question, and the config docs and prompt.
-    """
+    def forward(self, query: str) -> str:
+        assert isinstance(query, str), "Your query must be a string"
 
-    docs = config.retriever.invoke(question)
-
-    context = "\n\n".join([doc.page_content for doc in docs])
-
-    prompt = f"{config.base_prompt}\n\n<context>\n{context}</context>\n\n<question>{question}</question>"
-
-    return config.get_base_model().invoke(prompt).strip()
+        docs = self.config.vector_store.similarity_search(
+            query, k=self.config.retrieval_keys
+        )
+        context = "".join(
+            [
+                f"\n\n===== Document {i!r} =====\n" + doc.page_content
+                for i, doc in enumerate(docs)
+            ]
+        )
+        return f"\n\n<context>{context}\n\n</context>\n"
