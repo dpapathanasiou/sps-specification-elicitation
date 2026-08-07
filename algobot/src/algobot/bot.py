@@ -18,7 +18,12 @@ model = LiteLLMModel(
 )
 
 
-config = RAGConfig()
+config = RAGConfig(
+    base_model=getenv("SPS_RAG_MODEL", "gpt-oss"),
+    embed_model=getenv("SPS_EMBED_MODEL", "embeddinggemma"),
+    corpus_dir=getenv("SPS_CORPUS_DIR", "corpus"),
+    chroma_dir=getenv("SPS_CHROMA_DIR", "chroma_db"),
+)
 print(config)  # sanity check env
 rebuild_index(config)
 
