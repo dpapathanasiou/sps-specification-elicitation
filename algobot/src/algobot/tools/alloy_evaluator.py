@@ -13,7 +13,7 @@ load_dotenv()  # read the .env file, if present
 @tool
 def evaluate_alloy_model(source: str) -> str:
     """
-    Runs 'alloy exec' on the given source code string, and returns the evaluation report as a json string.
+    Deterministically assess the correctness of the given Alloy model source code: this tool runs 'alloy exec' on the input, and returns the evaluation report as a json string.
 
     Args:
         source: the source code of the Alloy model to evaluation. Should be valid Alloy syntax, as a text string, containing at least one statement to 'check' or 'run'.
