@@ -1,7 +1,7 @@
 [project]
 name = "algobot"
 version = "0.1.0"
-description = "Add your description here"
+description = "Code, data, and notes related to my Secure Program Synthesis Fellowship (SPS) project."
 readme = "README.md"
 authors = [
     { name = "Denis Papathanasiou", email = "denis@papathanasiou.org" }
