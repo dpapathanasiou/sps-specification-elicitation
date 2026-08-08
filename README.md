@@ -33,6 +33,7 @@ Clone this repo, and perform these one-time setups:
    SPS_CORPUS_DIR = "corpus"
    SPS_CHROMA_DIR = "chroma_db"
    SPS_ALLOY_JAR = "/usr/local/alloy/org.alloytools.alloy.dist.jar" # or where downloaded jar was saved
+   SPS_DB_FILE = "/tmp/sps_db.sqlite3"
    ```
 
 1. Activate the uv environment, and run the bot:
