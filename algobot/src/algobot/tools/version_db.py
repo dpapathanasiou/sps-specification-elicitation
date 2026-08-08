@@ -1,6 +1,16 @@
 import json
+from os import getenv
+from pathlib import Path
+from uuid import uuid4
 
+from dotenv import load_dotenv
+from graph_database import GraphDatabase
 from smolagents import tool
+
+load_dotenv()  # read the .env file, if present
+
+db_file = Path(getenv("SPS_DB_FILE", "/tmp/sps_db.sqlite3"))
+db = GraphDatabase(db_file)
 
 
 @tool
@@ -11,10 +21,11 @@ def log_model_version(source: str) -> str:
     Args:
         source: The source code of the Alloy model to save.
     """
-    # TODO build a real implementation
-    result = {
-        "error": False,
-        "status": f"{source}",
-    }
-    print(f"log success :: {source[:64]}")
+
+    # TODO track corresponding user and prior version id for this session
+    id = uuid4().__str__()
+    data = {"src": source}
+    db.insert(id, data)
+
+    result = {"id": id}
     return json.dumps(result)
