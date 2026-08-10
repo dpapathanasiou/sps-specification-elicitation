@@ -4,8 +4,9 @@ from pathlib import Path
 from uuid import uuid4
 
 from dotenv import load_dotenv
-from graph_database import GraphDatabase
 from smolagents import tool
+
+from algobot.tools.graph_database import GraphDatabase
 
 load_dotenv()  # read the .env file, if present
 
