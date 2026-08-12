@@ -1,7 +1,7 @@
 from os import getenv
 
 from dotenv import load_dotenv
-from smolagents import LiteLLMModel, ToolCallingAgent
+from smolagents import GradioUI, LiteLLMModel, ToolCallingAgent
 
 from algobot.rag_config import RAGConfig
 from algobot.rag_processor import rebuild_index
@@ -50,9 +50,11 @@ agent = ToolCallingAgent(
 )
 
 
-while True:
-    user_input = input("Tell me about the system you want to build (/quit to stop) ")
-    if user_input.lower() == "/quit":
-        break
-    response = agent.run(user_input)
-    print(f"{response}")
+ui = GradioUI(agent=agent)
+ui.name = "Tell me about the system you want to build"
+ui.launch(
+    share=False,
+    show_error=True,
+    pwa=True,
+    footer_links=["api", "settings"],
+)
