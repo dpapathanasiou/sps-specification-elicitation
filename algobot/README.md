@@ -18,7 +18,7 @@ source .venv/bin/activate
 
 ```sh
 uv init --library --python 3.14
-uv add uv add 'smolagents[toolkit,litellm,mcp,telemetry,gradio,docker]' \
+uv add 'smolagents[toolkit,litellm,mcp,telemetry,gradio,docker]' \
   langchain \
   langchain-core \
   langchain-community \
