@@ -7,6 +7,7 @@ from smolagents import GradioUI, LiteLLMModel, ToolCallingAgent
 from algobot.rag_config import RAGConfig
 from algobot.rag_processor import rebuild_index
 from algobot.tools.alloy_evaluator import evaluate_alloy_model
+from algobot.tools.alloy_visualizer import visualize_alloy_model
 from algobot.tools.rag_tool import RAGTool
 from algobot.tools.version_db import log_model_version
 
@@ -40,17 +41,26 @@ def initialize(
     evaluation = (
         f"'{evaluate_alloy_model.name}' (tool) -> {evaluate_alloy_model.description}"
     )
+    visualization = (
+        f"'{visualize_alloy_model.name}' (tool) -> {visualize_alloy_model.description}"
+    )
     version = f"'{log_model_version.name}' (tool) -> {log_model_version.description}"
     max_retries_per_request = "10"
 
     prompt = (
         f"{config.base_prompt}\n\n"
         f"<evaluation>{evaluation}</evaluation>\n"
+        f"<visualization>{visualization}</visualization>\n"
         f"<version>{version}</version>\n"
         f"<retries>{max_retries_per_request}</retries>"
     )
     agent = ToolCallingAgent(
-        tools=[evaluate_alloy_model, alloy_rag_tool, log_model_version],
+        tools=[
+            evaluate_alloy_model,
+            alloy_rag_tool,
+            visualize_alloy_model,
+            log_model_version,
+        ],
         model=model,
         stream_outputs=True,
         instructions=prompt,
