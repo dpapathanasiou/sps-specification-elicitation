@@ -2,8 +2,6 @@ import argparse
 from os import getenv
 
 from dotenv import load_dotenv
-
-# from smolagents import GradioUI, LiteLLMModel, ToolCallingAgent
 from smolagents import LiteLLMModel, ToolCallingAgent
 
 from algobot.enhanced_gradio_ui import EnhancedGradioUI
