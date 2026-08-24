@@ -2,8 +2,11 @@ import argparse
 from os import getenv
 
 from dotenv import load_dotenv
-from smolagents import GradioUI, LiteLLMModel, ToolCallingAgent
 
+# from smolagents import GradioUI, LiteLLMModel, ToolCallingAgent
+from smolagents import LiteLLMModel, ToolCallingAgent
+
+from algobot.enhanced_gradio_ui import EnhancedGradioUI
 from algobot.rag_config import RAGConfig
 from algobot.rag_processor import rebuild_index
 from algobot.tools.alloy_evaluator import evaluate_alloy_model
@@ -109,7 +112,7 @@ if __name__ == "__main__":
             response = agent.run(user_input)
             print(f"{response}")
     elif args.ui:
-        ui = GradioUI(agent=agent)
+        ui = EnhancedGradioUI(agent=agent)
         ui.name = opening_msg
         ui.launch(
             share=args.share_ui,
