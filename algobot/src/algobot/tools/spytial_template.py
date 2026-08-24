@@ -1,29 +1,22 @@
-OPENING = """
-<!doctype html>
-<html>
-    <head>
-        <meta charset="utf-8" />
-        <title>Spytial Spec Visualizer</title>
-        <script src="https://cdn.jsdelivr.net/npm/spytial-core/dist/browser/spytial-core-complete.global.js"></script>
-        <style>
-            html,
-            body {
-                height: 100%; /* let the body fill the viewport */
-                margin: 0; /* no default margin */
-            }
-            #g {
-                display: block; /* block so width/height work */
-                /* let the graph grow with its parent: */
-                width: 99%;
-                height: 100%;
-            }
-        </style>
-    </head>
+HEAD = """<script src="https://cdn.jsdelivr.net/npm/spytial-core/dist/browser/spytial-core-complete.global.js"></script>"""
 
-    <body>
-        <webcola-cnd-graph id="g"></webcola-cnd-graph>
+CSS_TEMPLATE = """
+html,
+body {
+    height: 100%; /* let the body fill the viewport */
+    margin: 0; /* no default margin */
+}
+#g {
+    display: block; /* block so width/height work */
+    /* let the graph grow with its parent: */
+    width: 99%;
+    height: 100%;
+}
+"""
 
-        <script>
+HTML_TEMPLATE = """<webcola-cnd-graph id="g"></webcola-cnd-graph>"""
+
+JS_OPENING = """
             /**
              * Create a spytial-core AlloyDataInstance from an Alloy XML string.
              *
@@ -88,7 +81,7 @@ OPENING = """
             const alloyXml = `<?xml version="1.0" encoding="UTF-8"?>
 """
 
-CLOSING = """`;
+JS_CLOSING = """`;
 
             const { parseLayoutSpec, SGraphQueryEvaluator, LayoutInstance } =
                 spytialcore;
@@ -112,11 +105,6 @@ CLOSING = """`;
             ).generateLayout(instance);
             const layout = generatedLayout.layout;
 
-            /* --------------------------------------------------------------------
-       4.  Render the layout
-       -------------------------------------------------------------------- */
+            // 4.  Render the layout
             document.getElementById("g").renderLayout(layout);
-        </script>
-    </body>
-</html>
 """
