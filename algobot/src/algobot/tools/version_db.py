@@ -1,32 +1,32 @@
-import json
+import logging
+from datetime import UTC
+from datetime import datetime as dt
 from os import getenv
 from pathlib import Path
 from uuid import uuid4
 
 from dotenv import load_dotenv
-from smolagents import tool
 
 from algobot.tools.graph_database import GraphDatabase
 
-load_dotenv()  # read the .env file, if present
+_ = load_dotenv()  # read the .env file, if present
+
+
+logger = logging.getLogger(__name__)
 
 db_file = Path(getenv("SPS_DB_FILE", "/tmp/sps_db.sqlite3"))
 db = GraphDatabase(db_file)
 
 
-@tool
-def log_model_version(source: str) -> str:
-    """
-    Saves the given model to the version database: this tool accepts a string, corresponding to the Alloy model to save, and logs it in the version database.
-
-    Args:
-        source: The source code of the Alloy model to save.
-    """
-
-    # TODO track corresponding user and prior version id for this session
+def log_model_version(cargo):
     id = uuid4().__str__()
-    data = {"src": source}
+    data = {
+        "src": cargo["alloy"],
+        "session": str(cargo["session"]),
+        "user_input": cargo["user_input"],
+        "ts": dt.now(tz=UTC).timestamp(),
+    }
+
     db.insert(id, data)
 
-    result = {"id": id}
-    return json.dumps(result)
+    return ("user_input", cargo)

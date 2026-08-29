@@ -1,5 +1,8 @@
+import logging
 from collections import defaultdict
 from pathlib import Path
+
+logger = logging.getLogger(__name__)
 
 from langchain_community.document_loaders import (
     BSHTMLLoader,
@@ -11,7 +14,7 @@ from langchain_community.document_loaders.generic import GenericLoader
 from langchain_community.document_loaders.parsers import LanguageParser
 from langchain_text_splitters import Language, RecursiveCharacterTextSplitter
 
-from algobot.rag_config import RAGConfig
+from algobot.tools.rag_config import RAGConfig
 
 ALLOY_SOURCE = [".als"]
 
@@ -75,7 +78,7 @@ def load_corpus(corpus_folder: Path):
                     docs[file_ext].extend(
                         TextLoader(p, autodetect_encoding=True).load()
                     )
-    print(f"Corpus files:\n{chr(10).join(corpus_files)}\n")
+    logger.info(f"Corpus files:\n{chr(10).join(corpus_files)}\n")
 
     return dict(docs)
 
@@ -85,7 +88,7 @@ def rebuild_index(config: RAGConfig, force=False):
 
     index = vector_store.get()
     if not force and index["ids"]:
-        print("Corpus already exists and is not empty, skipping rebuild")
+        logger.info("Corpus already exists and is not empty, skipping rebuild")
         return
 
     vector_store.reset_collection()
@@ -94,7 +97,7 @@ def rebuild_index(config: RAGConfig, force=False):
     for extension, docs in docs_by_language.items():
         if extension in SOURCE_CODE:
             language = SOURCE_CODE[extension]
-            print(f"- indexing {len(docs)} docs for {language} ({extension})")
+            logger.info(f"- indexing {len(docs)} docs for {language} ({extension})")
             splitter = RecursiveCharacterTextSplitter.from_language(
                 language=SOURCE_CODE[extension],
                 chunk_size=config.chunk_size,
@@ -104,7 +107,7 @@ def rebuild_index(config: RAGConfig, force=False):
             data = splitter.split_documents(docs)
             vector_store.add_documents(data)
         elif extension in TEXT:
-            print(f"- indexing {len(docs)} docs as text ({extension})")
+            logger.info(f"- indexing {len(docs)} docs as text ({extension})")
             splitter = RecursiveCharacterTextSplitter(
                 chunk_size=config.chunk_size,
                 chunk_overlap=0 if extension in ALLOY_SOURCE else config.chunk_overlap,

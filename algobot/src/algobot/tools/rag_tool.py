@@ -1,6 +1,6 @@
 from smolagents.tools import Tool
 
-from algobot.rag_config import RAGConfig
+from algobot.tools.rag_config import RAGConfig
 
 
 class RAGTool(Tool):

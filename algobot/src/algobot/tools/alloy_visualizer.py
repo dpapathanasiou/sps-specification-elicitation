@@ -1,5 +1,6 @@
+import logging
+
 from gradio.components.html import HTML
-from smolagents import tool
 
 from algobot.tools.spytial_template import (
     CSS_TEMPLATE,
@@ -9,19 +10,13 @@ from algobot.tools.spytial_template import (
     JS_OPENING,
 )
 
+logger = logging.getLogger(__name__)
 
-@tool
-def visualize_alloy_model(xml_data: str) -> HTML:
-    """
-    Use the results of the given Alloy model source code assessment
-    from the Alloy evaluation tool, extract the xml stdout, and render
-    a Spytial visualization, as a complete html page that can be shown
-    in the Gradio app.
 
-    Args:
-        xml_data: the output of the Alloy model evaluation from the stdout portion of the Alloy evaluation tool. Should be valid xml, as a text string.
-    """
+def visualize_alloy_model(cargo):
+    logger.info(f"visualize_alloy_model -> {cargo}")
 
+    xml_data = cargo["alloy_xml"]
     js_content = f"""{JS_OPENING}{xml_data}{JS_CLOSING}"""
     spytial = HTML(
         head=HEAD,
@@ -29,4 +24,6 @@ def visualize_alloy_model(xml_data: str) -> HTML:
         css_template=CSS_TEMPLATE,
         html_template=HTML_TEMPLATE,
     )
-    return spytial
+
+    logger.info(spytial)
+    return ("user_confirm", cargo)
