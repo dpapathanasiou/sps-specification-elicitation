@@ -54,8 +54,12 @@ class AlloyBot:
         query = f"<user_input>{cargo['user_input']}</user_input>"
         if "prior_error" in cargo:
             query += f"\n<prior_error>{cargo['prior_error']}</prior_error>"
-            if "alloy" in cargo:
-                query += f"\n<prior_response>{cargo['alloy']}</prior_response>"
+
+        if "alloy" in cargo:
+            query += f"\n<prior_response>{cargo['alloy']}</prior_response>"
+
+        if "explain" in cargo:
+            query += f"\n<explain>{cargo['explain']}</explain>"
 
         response = self.agent.run(query)
         cargo["alloy"] = response

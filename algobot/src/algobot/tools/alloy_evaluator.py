@@ -56,6 +56,8 @@ def evaluate_alloy_model(cargo):
 
             if eval_error:
                 return ("agent", cargo)
+            else:
+                cargo.pop("prior_error", None)
 
             return ("visualize_alloy", cargo)
 
