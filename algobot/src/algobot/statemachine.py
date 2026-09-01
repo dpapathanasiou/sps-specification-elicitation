@@ -11,6 +11,11 @@ current state and the current cargo.
 
 
 class StateMachine:
+    WARN_START = "StateMachine Initialization Error: you must call .set_start() before .run() or .next"
+    WARN_END = (
+        "StateMachine Initialization Error: at least one state must be an end_state"
+    )
+
     def __init__(self):
         self.handlers = {}
         self.start_state = None
@@ -28,17 +33,40 @@ class StateMachine:
     def set_start(self, name):
         self.start_state = name
 
+    def next(self, cargo):
+        """
+        Execute just next stage of the workflow
+        """
+        if not self.start_state:
+            raise RuntimeError(self.WARN_START)
+        if not self.ending_states:
+            raise RuntimeError(self.WARN_END)
+
+        if not self.current_state:
+            self.current_state = self.start_state
+
+        handler = self.handlers[self.current_state]
+        if not handler or self.current_state in self.ending_states:
+            return
+
+        (next_state, cargo) = handler(cargo)
+        self.current_state = next_state
+        self.current_cargo = cargo
+
+        # capture and return the result of this stage (if any)
+        result = cargo.get("result", None)
+        return result
+
     def run(self, cargo):
+        """
+        Execute the workflow from start to finish
+        """
         try:
             handler = self.handlers[self.start_state]
         except RuntimeError:
-            raise RuntimeError(
-                "StateMachine Initialization Error: you must call .set_start() before .run()"
-            )
+            raise RuntimeError(self.WARN_START)
         if not self.ending_states:
-            raise RuntimeError(
-                "StateMachine Initialization Error: at least one state must be an end_state"
-            )
+            raise RuntimeError(self.WARN_END)
 
         while 1:
             (next_state, cargo) = handler(cargo)
