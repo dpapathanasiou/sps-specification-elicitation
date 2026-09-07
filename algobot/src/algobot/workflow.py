@@ -9,7 +9,7 @@ from gradio import ChatMessage
 from algobot.tools.alloy_bot import AlloyBot
 from algobot.tools.alloy_evaluator import evaluate_alloy_model
 from algobot.tools.alloy_visualizer import visualize_alloy_model
-from algobot.tools.version_db import log_model_version
+from algobot.tools.version_db import get_current_model_version, log_model_version
 from algobot.user_session import UserSession
 
 logger = logging.getLogger(__name__)
@@ -55,14 +55,19 @@ class Workflow:
         logger.info(pformat(history))
 
         if message == self.approved:
-            # TODO: display or offer to download the source of the alloy model at this stage
-            yield ChatMessage(
-                "Great, please feel free to refine it further, if you wish"
-            )
+            snapshot = get_current_model_version(self.session)
+
+            ack = ""
+            if snapshot and snapshot[0]["src"]:
+                code = snapshot[0]["src"]
+                ack += f"""Here is the model so far:\n\n```\n{code}\n```\n\n"""
+
+            ack += "Please feel free to refine it further, if you wish (or, refresh the page to start over)"
+            yield ChatMessage(ack)
 
         elif message == self.rejected:
             yield ChatMessage(
-                "Please try explaining it again, from a different perspective, and I'm happy to take another stab at it"
+                "Please try explaining it again, from a different perspective, and I'm happy to take another stab at it  (or, refresh the page to start over)"
             )
 
         else:
@@ -91,7 +96,7 @@ class Workflow:
             for _ in range(self.retries):
                 (alloy_xml, alloy_err) = evaluate_alloy_model(alloy_code)
                 if not alloy_err:
-                    _ = log_model_version(self.session, alloy_code, message)
+                    log_model_version(self.session, alloy_code, message)
                     visualization = visualize_alloy_model(alloy_xml)
                     break
                 else:
@@ -128,6 +133,7 @@ class Workflow:
                     "Could you try again, perhaps describing it from a different perspective?",
                     tag="p",
                 )
+                bot_msg += "Refresh the page to start over"
                 response.content = bot_msg
                 response.metadata["status"] = "done"
                 yield response

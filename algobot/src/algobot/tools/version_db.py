@@ -26,4 +26,12 @@ def log_model_version(session, alloy_code, user_input):
         "ts": dt.now(tz=UTC).timestamp(),
     }
 
-    return db.insert(id, data)
+    db.insert(id, data)
+
+
+def get_all_model_versions(session):
+    return db.select(session.get_id(), use_like=True)
+
+
+def get_current_model_version(session):
+    return db.select(session.get_as_id(), use_like=False)
