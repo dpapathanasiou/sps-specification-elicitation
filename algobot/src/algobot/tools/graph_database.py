@@ -26,6 +26,10 @@ INSERT_NODE = """INSERT INTO nodes VALUES(json(?))"""
 
 INSERT_EDGE = """INSERT INTO edges VALUES(?, ?, json(?))"""
 
+SELECT_NODE = """SELECT body FROM nodes WHERE id = ?"""
+
+SELECT_NODES_LIKE = """SELECT body FROM nodes WHERE id LIKE ? || '%' ORDER BY id ASC"""
+
 
 def atomic(db_file, cursor_exec_fn):
     """Execute the function as an atomic transaction in the given database (sqlite file)"""
@@ -83,6 +87,18 @@ def connect_nodes(source_id, target_id, properties=None):
     return _connect_nodes
 
 
+def _parse_search_results(results, idx=0):
+    return [json.loads(item[idx]) for item in results]
+
+
+def find_nodes(id, use_like=False):
+    def _find_nodes(cursor):
+        query = SELECT_NODES_LIKE if use_like else SELECT_NODE
+        return _parse_search_results(cursor.execute(query, (id,)).fetchall())
+
+    return _find_nodes
+
+
 class GraphDatabase:
     """
     A graph database in sqlite, inspired by [simple-graph](https://github.com/dpapathanasiou/simple-graph).
@@ -105,6 +121,9 @@ class GraphDatabase:
         atomic(self.db_file, add_node(data, id))
         if predecessor_id:
             atomic(self.db_file, connect_nodes(predecessor_id, id))
+
+    def select(self, id, use_like=False):
+        return atomic(self.db_file, find_nodes(id, use_like))
 
     def __str__(self):
         return f"GraphDatabase: {self.db_file}"
