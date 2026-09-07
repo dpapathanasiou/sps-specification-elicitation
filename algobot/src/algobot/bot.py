@@ -5,10 +5,9 @@ import gradio as gr
 
 from algobot.workflow import Workflow
 
-# make sure the bot responses, especially the visualizations,
-# use the full width of the chat interface window
+# make sure the visualization uses the full width of the chat interface window
 custom_css = """
-[class*="bot"][class*="message"] {
+[class*="bot"][class*="message"]:has([class*="message"][class*="html"]) {
     width: 99% !important;
     max-width: 99% !important;
 }
@@ -45,10 +44,11 @@ if __name__ == "__main__":
 
     ui = gr.ChatInterface(
         workflow.run,
-        chatbot=gr.Chatbot(scale=10, label="SPS Requirements Bot"),
+        chatbot=gr.Chatbot(label="SPS Requirements Bot", scale=10, resizable=True),
         textbox=gr.Textbox(
             placeholder="Tell me about the system you want to build",
-            container=False,
+            container=True,
+            autofocus=True,
             scale=10,
         ),
         title="SPS Requirements Bot",
