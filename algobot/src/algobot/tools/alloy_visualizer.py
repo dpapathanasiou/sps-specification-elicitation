@@ -13,11 +13,10 @@ from algobot.tools.spytial_template import (
 logger = logging.getLogger(__name__)
 
 
-def visualize_alloy_model(cargo):
-    logger.info(f"visualize_alloy_model -> {cargo}")
+def visualize_alloy_model(alloy_xml):
+    logger.info(f"visualize_alloy_model -> {alloy_xml}")
 
-    xml_data = cargo["alloy_xml"]
-    js_content = f"""{JS_OPENING}{xml_data}{JS_CLOSING}"""
+    js_content = f"""{JS_OPENING}{alloy_xml}{JS_CLOSING}"""
     spytial = HTML(
         head=HEAD,
         js_on_load=js_content,
@@ -25,5 +24,4 @@ def visualize_alloy_model(cargo):
         html_template=HTML_TEMPLATE,
     )
 
-    logger.info(spytial)
-    return ("user_confirm", cargo)
+    return spytial

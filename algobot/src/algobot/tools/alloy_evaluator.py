@@ -12,8 +12,8 @@ _ = load_dotenv()  # read the .env file, if present
 logger = logging.getLogger(__name__)
 
 
-def evaluate_alloy_model(cargo):
-    logger.info(f"evaluate_alloy_model -> {cargo}")
+def evaluate_alloy_model(alloy_source):
+    logger.info(f"evaluate_alloy_model -> {alloy_source}")
 
     alloy_jar = Path(
         getenv("SPS_ALLOY_JAR", "/usr/local/alloy/org.alloytools.alloy.dist.jar")
@@ -23,9 +23,8 @@ def evaluate_alloy_model(cargo):
             1. The path to the JAR file is correct: {alloy_jar}
             2. You have read permissions for this file""")
     try:
-        source = cargo["alloy"]
         with tempfile.NamedTemporaryFile(mode="w", suffix=".als", delete=True) as model:
-            model.write(source)
+            model.write(alloy_source)
             model.flush()
 
             cmd = [
@@ -40,26 +39,21 @@ def evaluate_alloy_model(cargo):
                 model.name,
             ]
 
-            eval_error = False
+            alloy_xml = None
+            alloy_err = None
+
             try:
                 result = subprocess.run(cmd, capture_output=True, text=True, check=True)
 
                 if len(result.stderr) > 0:
-                    cargo["prior_error"] = result.stderr
-                    eval_error = True
-
-                cargo["alloy_xml"] = result.stdout
+                    alloy_err = result.stderr
+                else:
+                    alloy_xml = result.stdout
 
             except subprocess.CalledProcessError as cpe:
-                cargo["prior_error"] = cpe.stderr
-                eval_error = True
+                alloy_err = cpe.stderr
 
-            if eval_error:
-                return ("agent", cargo)
-            else:
-                cargo.pop("prior_error", None)
-
-            return ("visualize_alloy", cargo)
+            return (alloy_xml, alloy_err)
 
     except PermissionError as pe:
         raise RuntimeError(f"""Failed to create temporary file for Alloy model. Error: {pe!r}

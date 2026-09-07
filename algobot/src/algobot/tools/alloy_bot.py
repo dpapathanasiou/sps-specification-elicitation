@@ -7,7 +7,6 @@ from smolagents import LiteLLMModel, ToolCallingAgent
 from algobot.tools.rag_config import RAGConfig
 from algobot.tools.rag_processor import rebuild_index
 from algobot.tools.rag_tool import RAGTool
-from algobot.user_session import UserSession
 
 _ = load_dotenv()  # read the .env file from this folder, if present
 
@@ -43,27 +42,17 @@ class AlloyBot:
             tools=[alloy_rag_tool],
         )
 
-    def model_alloy(self, cargo):
-        if "user_input" not in cargo:
-            raise RuntimeError("missing user input")
-
-        session = cargo.get("session", UserSession())
+    def generate_model(self, user_input, session, prior_attempt=None, prior_error=None):
         session.increment()
-        cargo["session"] = session
 
-        query = f"<user_input>{cargo['user_input']}</user_input>"
-        if "prior_error" in cargo:
-            query += f"\n<prior_error>{cargo['prior_error']}</prior_error>"
+        query = f"<user_input>{user_input}</user_input>"
+        if prior_error:
+            query += f"\n<prior_error>{prior_error}</prior_error>"
 
-        if "alloy" in cargo:
-            query += f"\n<prior_response>{cargo['alloy']}</prior_response>"
+        if prior_attempt:
+            query += f"\n<prior_attempt>{prior_attempt}</prior_attempt>"
 
-        if "explain" in cargo:
-            query += f"\n<explain>{cargo['explain']}</explain>"
-
-        response = self.agent.run(query)
-        cargo["alloy"] = response
-        return ("evaluate_alloy", cargo)
+        return self.agent.run(query)
 
     def __str__(self):
         return str(self.config)

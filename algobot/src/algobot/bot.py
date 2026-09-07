@@ -1,12 +1,18 @@
 import argparse
 import logging
 
-from algobot.statemachine import StateMachine
-from algobot.tools.alloy_bot import AlloyBot
-from algobot.tools.alloy_evaluator import evaluate_alloy_model
-from algobot.tools.alloy_visualizer import visualize_alloy_model
-from algobot.tools.user_prompt import get_user_confirmation, get_user_input
-from algobot.tools.version_db import log_model_version
+import gradio as gr
+
+from algobot.workflow import Workflow
+
+# make sure the bot responses, especially the visualizations,
+# use the full width of the chat interface window
+custom_css = """
+[class*="bot"][class*="message"] {
+    width: 99% !important;
+    max-width: 99% !important;
+}
+"""
 
 if __name__ == "__main__":
     logging.basicConfig(
@@ -27,30 +33,34 @@ if __name__ == "__main__":
         type=bool,
         default=False,
     )
+    parser.add_argument(
+        "--share_ui",
+        help="create a publicly accessible share link on Gradio's server",
+        type=bool,
+        default=False,
+    )
     args = parser.parse_args()
 
-    m = StateMachine()
-    try:
-        m.add_state("user_input", get_user_input)
-        m.set_start("user_input")
+    workflow = Workflow()
 
-        agent = AlloyBot()
-        m.add_state("agent", agent.model_alloy)
-        m.add_state("evaluate_alloy", evaluate_alloy_model)
-        m.add_state("visualize_alloy", visualize_alloy_model)
-        m.add_state("user_confirm", get_user_confirmation)
-        m.add_state("log_version", log_model_version)
+    ui = gr.ChatInterface(
+        workflow.run,
+        chatbot=gr.Chatbot(scale=10, label="SPS Requirements Bot"),
+        textbox=gr.Textbox(
+            placeholder="Tell me about the system you want to build",
+            container=False,
+            scale=10,
+        ),
+        title="SPS Requirements Bot",
+        description="Ask the SPS Requirements Bot to help you write a specification",
+        fill_height=True,
+        fill_width=True,
+    )
 
-        m.add_state("done", None, is_end_state=True)
-
-        m.run({})
-
-    # in the event of an exception, capture the current
-    # state and cargo dict and use the information
-    # as part of the message sent to stdout
-    except Exception as e:
-        exception_data = {"state": m.current_state}
-        if m.current_cargo:
-            exception_data["cargo"] = m.current_cargo
-        e.args = (exception_data,)
-        raise
+    ui.launch(
+        share=args.share_ui,
+        css=custom_css,
+        show_error=True,
+        pwa=True,
+        footer_links=["api", "settings"],
+    )
