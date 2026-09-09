@@ -106,5 +106,21 @@ JS_CLOSING = """`;
             const layout = generatedLayout.layout;
 
             // 4.  Render the layout
-            document.getElementById("g").renderLayout(layout);
+            const graph = document.getElementById('g');
+            graph.renderLayout(layout);
+
+            // add a full-screen toggle button
+            const button = document.createElement('button');
+            button.textContent = '⛶';
+            button.title = 'Full screen';
+            button.onclick = () => {
+              if (document.fullscreenElement === graph) document.exitFullscreen();
+              else graph.requestFullscreen();
+            };
+
+            // The box just changed size, so fit the diagram to it again.
+            document.addEventListener('fullscreenchange', () => {
+              requestAnimationFrame(() => graph.resetViewToFitContent());
+            });
+            graph.addToolbarControl(button);
 """
