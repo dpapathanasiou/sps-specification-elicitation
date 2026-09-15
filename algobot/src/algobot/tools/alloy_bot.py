@@ -16,11 +16,23 @@ logger = logging.getLogger(__name__)
 
 class AlloyBot:
     def __init__(self, show_config: bool = True, force_index_rebuild: bool = False):
-        model = LiteLLMModel(
-            model_id=getenv("SPS_BOT_MODEL", "ollama/qwen3.5:4b"),
-            api_base=getenv("SPS_BOT_URL", "http://localhost:11434"),
-            num_ctx=int(getenv("SPS_BOT_CONTEXT_SIZE", "8192")),
-        )
+
+        # define the main model, based on env settings
+        model_id = getenv("SPS_BOT_MODEL", "ollama/qwen3.5:4b")
+        api_base = getenv("SPS_BOT_URL", "http://localhost:11434")
+        num_ctx = int(getenv("SPS_BOT_CONTEXT_SIZE", "8192"))
+        model_api_key = getenv("SPS_BOT_MODEL_API_KEY")
+        if model_api_key:
+            model = LiteLLMModel(
+                model_id=model_id,
+                api_base=api_base,
+                api_key=model_api_key,
+                num_ctx=num_ctx,
+            )
+        else:
+            model = LiteLLMModel(model_id=model_id, api_base=api_base, num_ctx=num_ctx)
+
+        # define the model config for the RAG processor
         self.config = RAGConfig(
             base_model=getenv("SPS_RAG_MODEL", "gpt-oss"),
             embed_model=getenv("SPS_EMBED_MODEL", "embeddinggemma"),
