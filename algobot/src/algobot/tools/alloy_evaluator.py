@@ -1,4 +1,6 @@
+import json
 import logging
+import re
 import subprocess
 import tempfile
 from os import getenv
@@ -10,6 +12,25 @@ _ = load_dotenv()  # read the .env file, if present
 
 
 logger = logging.getLogger(__name__)
+
+INFO_PATTERN = re.compile(r"^\[main\] INFO (.*) - (.*)$")
+
+
+def is_info_line_match(logline):
+    """Apply the info logline regex pattern and return whether or not it's a match"""
+
+    return INFO_PATTERN.match(logline)
+
+
+def parse_info_json(logline):
+    """Parse and return the json metadata in the logline (if it exists)"""
+
+    match = is_info_line_match(logline)
+    if match:
+        try:
+            return json.loads(match.group(2))
+        except json.JSONDecodeError:
+            pass
 
 
 def evaluate_alloy_model(alloy_source):
@@ -31,6 +52,8 @@ def evaluate_alloy_model(alloy_source):
                 "java",
                 "-jar",
                 str(alloy_jar),
+                "-D",
+                "info",
                 "exec",
                 "--output",
                 "-",
@@ -41,19 +64,28 @@ def evaluate_alloy_model(alloy_source):
 
             alloy_xml = None
             alloy_err = None
+            alloy_log = []
 
             try:
                 result = subprocess.run(cmd, capture_output=True, text=True, check=True)
 
-                if len(result.stderr) > 0:
-                    alloy_err = result.stderr
-                else:
-                    alloy_xml = result.stdout
+                alloy_xml = result.stdout
+                alloy_log = [
+                    logline
+                    for line in result.stderr.splitlines()
+                    if (logline := parse_info_json(line))
+                ]
 
             except subprocess.CalledProcessError as cpe:
-                alloy_err = cpe.stderr
+                alloy_err = "\n".join(
+                    [
+                        line
+                        for line in cpe.stderr.splitlines()
+                        if not is_info_line_match(line)
+                    ]
+                )
 
-            return (alloy_xml, alloy_err)
+            return (alloy_xml, alloy_err, alloy_log)
 
     except PermissionError as pe:
         raise RuntimeError(f"""Failed to create temporary file for Alloy model. Error: {pe!r}
@@ -63,3 +95,20 @@ def evaluate_alloy_model(alloy_source):
             3. System limitations on creating temporary files
 
             To fix: Check your system's temporary file permissions and available space.""")
+
+
+from sys import argv
+
+if __name__ == "__main__":
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(levelname)s:%(name)s:%(message)s",
+    )
+
+    if len(argv) != 2:
+        logger.info(f"Usage: {argv[0]} </path/to/als_file>")
+    else:
+        with open(argv[1], "r") as f:
+            model = f.read()
+            xml, err, logs = evaluate_alloy_model(model)
+            logger.info(f"** xml:\n{xml}\n\n** err:\n{err}\n\n** loglines:\n{logs}")
