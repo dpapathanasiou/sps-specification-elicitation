@@ -11,7 +11,7 @@ Clone this repo, and perform these one-time setups:
 - Install [uv](https://docs.astral.sh/uv/getting-started/installation/)
 - Install [Ollama](https://ollama.com/download)
 - [Alloy](https://alloytools.org/)
-  - Download [org.alloytools.alloy.dist.jar](https://github.com/AlloyTools/org.alloytools.alloy/releases/download/v6.2.0/org.alloytools.alloy.dist.jar) from the [latest release (v6.2.0)](https://github.com/AlloyTools/org.alloytools.alloy/releases) and note the folder location
+  - Clone this [PR branch](https://github.com/dpapathanasiou/org.alloytools.alloy/tree/enhanced-cli-metdata) of the Alloy latest release (v6.2.0), [build](https://github.com/AlloyTools/org.alloytools.alloy#tldr) the jar (org.alloytools.alloy.dist.jar), and note the folder location
   - Requires [Java JRE 17](https://github.com/AlloyTools/org.alloytools.alloy?tab=readme-ov-file#tldr) - available via [SDKMAN!](https://sdkman.io/)
 
 ### Running
