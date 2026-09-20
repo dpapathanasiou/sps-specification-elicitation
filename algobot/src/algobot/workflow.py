@@ -7,7 +7,7 @@ from pprint import pformat
 from gradio import ChatMessage
 
 from algobot.tools.alloy_bot import AlloyBot
-from algobot.tools.alloy_evaluator import evaluate_alloy_model
+from algobot.tools.alloy_evaluator import evaluate_alloy_model, partition_metadata
 from algobot.tools.alloy_visualizer import visualize_alloy_model
 from algobot.tools.version_db import get_current_model_version, log_model_version
 from algobot.user_session import UserSession
@@ -93,10 +93,14 @@ class Workflow:
             yield response
 
             visualization = None
+            alloy_xml = None
+            alloy_err = None
+            alloy_log = []
+
             for _ in range(self.retries):
-                (alloy_xml, alloy_err) = evaluate_alloy_model(alloy_code)
+                (alloy_xml, alloy_err, alloy_log) = evaluate_alloy_model(alloy_code)
                 if not alloy_err:
-                    log_model_version(self.session, alloy_code, message)
+                    log_model_version(self.session, alloy_code, message, alloy_log)
                     visualization = visualize_alloy_model(alloy_xml)
                     break
                 else:
@@ -113,16 +117,26 @@ class Workflow:
                     )
 
             if visualization:
-                yield ChatMessage(
-                    content=visualization,
-                    options=[
-                        {"label": "Yes, that's correct", "value": self.approved},
-                        {
-                            "label": "No, that's not what I wanted",
-                            "value": self.rejected,
-                        },
-                    ],
-                )
+                (_, invalid_evaluations) = partition_metadata(alloy_log)
+                if invalid_evaluations:
+                    messages = " ".join(
+                        [e["message"] for e in invalid_evaluations if "message" in e]
+                    )
+                    yield ChatMessage(
+                        content=visualization,
+                        metadata={"title": messages, "status": "done"},
+                    )
+                else:
+                    yield ChatMessage(
+                        content=visualization,
+                        options=[
+                            {"label": "Yes, that's correct", "value": self.approved},
+                            {
+                                "label": "No, that's not what I wanted",
+                                "value": self.rejected,
+                            },
+                        ],
+                    )
 
             else:
                 bot_msg += prefix_timestamp(

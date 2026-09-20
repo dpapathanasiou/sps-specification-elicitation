@@ -33,6 +33,22 @@ def parse_info_json(logline):
             pass
 
 
+def partition_metadata(metadata):
+    """Partition the list of json metadata into (valid, invalid) lists"""
+
+    valid = []
+    invalid = []
+
+    for m in metadata:
+        if "valid" in m:
+            if m["valid"]:
+                valid.append(m)
+            else:
+                invalid.append(m)
+
+    return (valid, invalid)
+
+
 def evaluate_alloy_model(alloy_source):
     logger.info(f"evaluate_alloy_model -> {alloy_source}")
 
@@ -100,6 +116,8 @@ def evaluate_alloy_model(alloy_source):
 from sys import argv
 
 if __name__ == "__main__":
+    """For testing the evaluator independent of the workflow/LLM framework"""
+
     logging.basicConfig(
         level=logging.INFO,
         format="%(levelname)s:%(name)s:%(message)s",
