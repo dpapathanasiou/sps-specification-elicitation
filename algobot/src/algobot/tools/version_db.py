@@ -17,7 +17,7 @@ db_file = Path(getenv("SPS_DB_FILE", "/tmp/sps_db.sqlite3"))
 db = GraphDatabase(db_file)
 
 
-def log_model_version(session, alloy_code, user_input):
+def log_model_version(session, alloy_code, user_input, alloy_log):
     id = session.get_as_id()
 
     data = {
@@ -25,6 +25,8 @@ def log_model_version(session, alloy_code, user_input):
         "user_input": user_input,
         "ts": dt.now(tz=UTC).timestamp(),
     }
+    if alloy_log:
+        data["evaluation"] = alloy_log
 
     db.insert(id, data)
 
