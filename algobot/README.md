@@ -62,3 +62,14 @@ docker run --name site2pdf site2pdf https://practicalalloy.github.io/
 docker container cp site2pdf:/app/out/practicalalloy-github-io.pdf .
 colima stop
 ```
+
+### 3. Alloy Grammar and Lexical Tokens 
+
+As described in the [official documentation](https://alloytools.org/documentation.html):
+
+- [Alloy Grammar](https://github.com/AlloyTools/org.alloytools.alloy/blob/master/org.alloytools.alloy.core/parser/Alloy.cup) (in [Java Cup Parser Generator](https://github.com/ultimate-pa/javacup) format)
+- [Alloy Lexical tokens](https://github.com/AlloyTools/org.alloytools.alloy/blob/master/org.alloytools.alloy.core/parser/Alloy.lex)
+
+### 4. Unofficial [ANTLR v4](https://www.antlr.org/) grammar
+
+[Alloy.g4](https://github.com/pkriens/org.alloytools.alloy/blob/pkriens/api/org.alloytools.alloy.parser/src/main/antlr/Alloy.g4), via "[New Parser using ANTLR](https://alloytools.discourse.group/t/new-parser-using-antlr/517/6)"

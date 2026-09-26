@@ -16,7 +16,7 @@ from langchain_text_splitters import Language, RecursiveCharacterTextSplitter
 
 from algobot.tools.rag_config import RAGConfig
 
-ALLOY_SOURCE = [".als"]
+ALLOY_SOURCE = [".als", ".g4", ".cup", ".lex"]
 
 TEXT = [".pdf", ".css", ".htm", ".html", ".md", ".txt", ".text"] + ALLOY_SOURCE
 
