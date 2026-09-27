@@ -3,13 +3,26 @@ import logging
 
 import gradio as gr
 
+from algobot.tools.alloy_bot import AlloyBot
 from algobot.workflow import Workflow
 
-# make sure the visualization uses the full width of the chat interface window
 custom_css = """
+/* make sure the visualization uses the full width of the chat interface window */
 [class*="bot"][class*="message"]:has([class*="message"][class*="html"]) {
     width: 99% !important;
     max-width: 99% !important;
+}
+
+/* hide feedback buttons for all ChatMessage rows */
+[class*="message-wrap"] [class*="message-buttons-right"],
+[class*="message-wrap"] [class*="message-buttons-left"] {
+    display: none !important;
+}
+
+/* show feedback buttons if the ChatMessage row is a visualization */
+[class*="bot"][class*="message"]:has([class*="message"][class*="html"]) ~ [class*="message-buttons-right"],
+[class*="bot"][class*="message"]:has([class*="message"][class*="html"]) ~ [class*="message-buttons-left"] {
+    display: flex !important;
 }
 """
 
@@ -40,22 +53,41 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
 
-    workflow = Workflow()
-
-    ui = gr.ChatInterface(
-        workflow.run,
-        chatbot=gr.Chatbot(label="SPS Requirements Bot", scale=10, resizable=True),
-        textbox=gr.Textbox(
-            placeholder="Tell me about the system you want to build",
-            container=True,
-            autofocus=True,
-            scale=10,
-        ),
-        title="SPS Requirements Bot",
-        description="Ask the SPS Requirements Bot to help you write a specification",
-        fill_height=True,
-        fill_width=True,
+    alloy = AlloyBot(
+        show_config=args.show_config, force_index_rebuild=args.force_index_rebuild
     )
+    workflow = Workflow(alloy.get_agent())
+
+    def register_approval(like_data: gr.LikeData):
+        return list(workflow.vote(like_data.liked))
+
+    with gr.Blocks() as ui:
+        chatbot = gr.Chatbot(
+            label="SPS Requirements Bot",
+            scale=10,
+            resizable=True,
+            like_user_message=True,
+        )
+        chatbot.like(
+            register_approval,
+            inputs=None,
+            outputs=chatbot,
+        )
+
+        gr.ChatInterface(
+            workflow.run,
+            chatbot=chatbot,
+            textbox=gr.Textbox(
+                placeholder="Tell me about the system you want to build",
+                container=True,
+                autofocus=True,
+                scale=10,
+            ),
+            title="SPS Requirements Bot",
+            description="Ask the SPS Requirements Bot to help you write a specification",
+            fill_height=True,
+            fill_width=True,
+        )
 
     ui.launch(
         share=args.share_ui,

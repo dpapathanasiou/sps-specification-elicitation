@@ -54,17 +54,8 @@ class AlloyBot:
             tools=[alloy_rag_tool],
         )
 
-    def generate_model(self, user_input, session, prior_attempt=None, prior_error=None):
-        session.increment()
-
-        query = f"<user_input>{user_input}</user_input>"
-        if prior_error:
-            query += f"\n<prior_error>{prior_error}</prior_error>"
-
-        if prior_attempt:
-            query += f"\n<prior_attempt>{prior_attempt}</prior_attempt>"
-
-        return self.agent.run(query)
+    def get_agent(self):
+        return self.agent
 
     def __str__(self):
         return str(self.config)
