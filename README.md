@@ -16,7 +16,7 @@ Clone this repo, and perform these one-time setups:
 
 ### Running
 
-1. Choose which [Ollama model](https://ollama.com/search) to use, and run it:
+1. Choose which [Ollama LLM](https://ollama.com/search) to use, and run it:
 
    ```sh
    ollama run llama3.2

@@ -40,6 +40,13 @@ uv add 'smolagents[toolkit,litellm,mcp,telemetry,gradio,docker]' \
 
 The corpus folder contains the [retrieval-augmented generation (RAG)](https://en.wikipedia.org/wiki/Retrieval-augmented_generation) material for the Alloy generator LLM.
 
+> [!TIP]
+> Depending on the [agent LLM you choose](../README.md#running), you may be able to forego one or more of these corpus documents.
+> 
+> These are included just for reference, as suggestions to what might help the agent be effective in translating human requirements into Alloy source.
+> 
+> Also note that for non-local, pay-per-use LLMs, the larger the corpus, the [more expensive](https://what-is-rag.org/blogs/what-a-rag-system-actually-costs-to-run/) it is to run.
+
 ### 1. Examples of Alloy Models ([all-models.als](src/algobot/corpus/all-models.als))
 
 Run [generate_model_examples.py](generate_model_examples.py) in the root of a clone of https://github.com/AlloyTools/models as follows:
