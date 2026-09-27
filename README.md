@@ -44,3 +44,7 @@ Clone this repo, and perform these one-time setups:
    cd src/algobot
    uv run bot.py
    ```
+
+1. Visit `http://127.0.0.1:7860/` in a web browser, and start describing your system requirements in plain language
+
+![Starting Screenshot](./doc/starting_screenshot.png)
