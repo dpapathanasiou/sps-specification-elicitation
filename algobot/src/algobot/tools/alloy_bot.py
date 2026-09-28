@@ -32,7 +32,7 @@ class AlloyBot:
         else:
             model = LiteLLMModel(model_id=model_id, api_base=api_base, num_ctx=num_ctx)
 
-        # define the model config for the RAG processor
+        # define the model config for the RAG processor (both models must be local Ollama)
         self.config = RAGConfig(
             base_model=getenv("SPS_RAG_MODEL", "gpt-oss"),
             embed_model=getenv("SPS_EMBED_MODEL", "embeddinggemma"),
