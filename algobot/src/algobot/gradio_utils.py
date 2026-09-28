@@ -56,6 +56,32 @@ def _get_step_footnote_content(
     return step_footnote_content
 
 
+def _clean_model_output(model_output: str) -> str:
+    """
+    Clean up model output by removing trailing tags and extra backticks.
+
+    Args:
+        model_output (`str`): Raw model output.
+
+    Returns:
+        `str`: Cleaned model output.
+    """
+    if not model_output:
+        return ""
+    model_output = model_output.strip()
+    # Remove any trailing <end_code> and extra backticks, handling multiple possible formats
+    model_output = re.sub(
+        r"```\s*<end_code>", "```", model_output
+    )  # handles ```<end_code>
+    model_output = re.sub(
+        r"<end_code>\s*```", "```", model_output
+    )  # handles <end_code>```
+    model_output = re.sub(
+        r"```\s*\n\s*<end_code>", "```", model_output
+    )  # handles ```\n<end_code>
+    return model_output.strip()
+
+
 def _format_code_content(content: str) -> str:
     """
     Format code content as a code block if it's not already formatted.
@@ -99,9 +125,10 @@ def _process_action_step(
 
     # First yield the thought/reasoning from the LLM
     if not skip_model_outputs and getattr(step_log, "model_output", ""):
+        model_output = _clean_model_output(step_log.model_output)
         yield gr.ChatMessage(
             role=MessageRole.ASSISTANT,
-            content=step_log.model_output,
+            content=model_output,
             metadata={"status": "done"},
         )
 
@@ -170,27 +197,24 @@ def _process_planning_step(
         `gradio.ChatMessage`: Gradio ChatMessages representing the planning step.
     """
 
-    title = "🤔 _Thinking_"
     if not skip_model_outputs:
         yield gr.ChatMessage(
             role=MessageRole.ASSISTANT,
             content="**Planning step**",
-            metadata={"title": title, "status": "done"},
+            metadata={"status": "done"},
         )
         yield gr.ChatMessage(
             role=MessageRole.ASSISTANT,
             content=step_log.plan,
-            metadata={"title": title, "status": "done"},
+            metadata={"status": "done"},
         )
     yield gr.ChatMessage(
         role=MessageRole.ASSISTANT,
         content=_get_step_footnote_content(step_log, "Planning step"),
-        metadata={"title": title, "status": "done"},
+        metadata={"status": "done"},
     )
     yield gr.ChatMessage(
-        role=MessageRole.ASSISTANT,
-        content="-----",
-        metadata={"title": title, "status": "done"},
+        role=MessageRole.ASSISTANT, content="-----", metadata={"status": "done"}
     )
 
 
