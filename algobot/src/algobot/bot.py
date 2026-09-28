@@ -3,28 +3,9 @@ import logging
 
 import gradio as gr
 
+from algobot.gradio_utils import BOT_CSS
 from algobot.tools.alloy_bot import AlloyBot
 from algobot.workflow import Workflow
-
-custom_css = """
-/* make sure the visualization uses the full width of the chat interface window */
-[class*="bot"][class*="message"]:has([class*="message"][class*="html"]) {
-    width: 99% !important;
-    max-width: 99% !important;
-}
-
-/* hide feedback buttons for all ChatMessage rows */
-[class*="message-wrap"] [class*="message-buttons-right"],
-[class*="message-wrap"] [class*="message-buttons-left"] {
-    display: none !important;
-}
-
-/* show feedback buttons if the ChatMessage row is a visualization */
-[class*="bot"][class*="message"]:has([class*="message"][class*="html"]) ~ [class*="message-buttons-right"],
-[class*="bot"][class*="message"]:has([class*="message"][class*="html"]) ~ [class*="message-buttons-left"] {
-    display: flex !important;
-}
-"""
 
 if __name__ == "__main__":
     logging.basicConfig(
@@ -91,7 +72,7 @@ if __name__ == "__main__":
 
     ui.launch(
         share=args.share_ui,
-        css=custom_css,
+        css=BOT_CSS,
         show_error=True,
         pwa=True,
         footer_links=["api", "settings"],

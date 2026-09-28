@@ -17,6 +17,26 @@ from smolagents.agents import PlanningStep
 from smolagents.memory import ActionStep, FinalAnswerStep
 from smolagents.models import MessageRole
 
+BOT_CSS = """
+/* make sure the visualization uses the full width of the chat interface window */
+[class*="bot"][class*="message"]:has([class*="message"][class*="html"]) {
+    width: 99% !important;
+    max-width: 99% !important;
+}
+
+/* hide feedback buttons for all ChatMessage rows */
+[class*="message-wrap"] [class*="message-buttons-right"],
+[class*="message-wrap"] [class*="message-buttons-left"] {
+    display: none !important;
+}
+
+/* show feedback buttons if the ChatMessage row is a visualization */
+[class*="bot"][class*="message"]:has([class*="message"][class*="html"]) ~ [class*="message-buttons-right"],
+[class*="bot"][class*="message"]:has([class*="message"][class*="html"]) ~ [class*="message-buttons-left"] {
+    display: flex !important;
+}
+"""
+
 
 def _get_step_footnote_content(
     step_log: ActionStep | PlanningStep, step_name: str
@@ -51,7 +71,7 @@ def _format_code_content(content: str) -> str:
     content = re.sub(r"```.*?\n", "", content)
     content = re.sub(r"\s*<end_code>\s*", "", content)
     content = content.strip()
-    return f"<pre>\n{content}\n</pre>"
+    return f"```\n{content}\n```"
 
 
 def _process_action_step(
@@ -244,4 +264,4 @@ def pull_messages_from_step(
         yield from _process_final_answer_step(step_log)
 
 
-__all__ = ["as_chat_message", "pull_messages_from_step"]
+__all__ = ["BOT_CSS", "as_chat_message", "pull_messages_from_step"]
