@@ -1,4 +1,3 @@
-import json
 import logging
 import random
 from collections.abc import Generator
@@ -14,6 +13,7 @@ from algobot.gradio_utils import as_chat_message, pull_messages_from_step
 from algobot.tools.alloy_evaluator import evaluate_alloy_model, partition_metadata
 from algobot.tools.alloy_visualizer import visualize_alloy_model
 from algobot.tools.version_db import get_current_model_version, log_model_version
+from algobot.tools.version_formatter import format_version_md
 from algobot.user_session import UserSession
 
 logger = logging.getLogger(__name__)
@@ -139,20 +139,17 @@ class Workflow:
 
         if approved:
             yield from as_chat_message(
-                "Here's the corresponding Alloy model. Please feel free to refine it further if you wish, or, refresh the page to start over."
+                "Here is the Alloy model corresponding to your requirements. Please feel free to refine it further if you wish, or, refresh the page to start over."
             )
 
             results = "\n".join(
-                [
-                    json.dumps(version, indent=4)
-                    for version in get_current_model_version(self.session)
-                ]
+                [format_version_md(v) for v in get_current_model_version(self.session)]
             )
-            yield from as_chat_message(results, is_code=True)
+            yield from as_chat_message(results)
 
         else:
             yield from as_chat_message(
-                "Let's try again. What should we edit or update? Please tell me more."
+                "Let's try again. What should we edit or update? Please tell me more about your requirements."
             )
 
     def run(self, message, history):
