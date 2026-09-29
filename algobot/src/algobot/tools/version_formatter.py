@@ -16,7 +16,7 @@ from email.utils import format_datetime
 KEY_LABELS = {  # original key: human-friendly label
     "src": "Alloy Model",
     "user_input": "Requirements",
-    "ts": "Timestamp",
+    "ts": "",
     "evaluation": "Model Evaluation Results",
 }
 
@@ -25,8 +25,8 @@ MULTILINE_KEYS = ("src", "user_input")
 MD_SECTIONS = (  # (original key, heading level), in display order
     ("user_input", 3),
     ("src", 3),
-    ("ts", 4),
     ("evaluation", 4),
+    ("ts", 4),
 )
 
 MD_FENCES = {  # original key: code fence language
