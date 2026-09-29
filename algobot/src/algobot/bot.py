@@ -40,7 +40,12 @@ if __name__ == "__main__":
     workflow = Workflow(alloy.get_agent())
 
     def register_approval(like_data: gr.LikeData):
-        return list(workflow.vote(like_data.liked))
+        # only allow up/down reactions on visualization results
+        if any(
+            isinstance(e, dict) and e.get("component") == "html"
+            for e in like_data.value
+        ):
+            return list(workflow.vote(like_data.liked))
 
     with gr.Blocks() as ui:
         chatbot = gr.Chatbot(

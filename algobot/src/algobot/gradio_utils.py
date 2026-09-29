@@ -23,18 +23,6 @@ BOT_CSS = """
     width: 99% !important;
     max-width: 99% !important;
 }
-
-/* hide feedback buttons for all ChatMessage rows */
-[class*="message-wrap"] [class*="message-buttons-right"],
-[class*="message-wrap"] [class*="message-buttons-left"] {
-    display: none !important;
-}
-
-/* show feedback buttons if the ChatMessage row is a visualization */
-[class*="bot"][class*="message"]:has([class*="message"][class*="html"]) ~ [class*="message-buttons-right"],
-[class*="bot"][class*="message"]:has([class*="message"][class*="html"]) ~ [class*="message-buttons-left"] {
-    display: flex !important;
-}
 """
 
 
@@ -244,7 +232,9 @@ def _process_final_answer_step(step_log: FinalAnswerStep) -> Generator:
         )
 
 
-def as_chat_message(content, is_code=False, status=None, title=None) -> Generator:
+def as_chat_message(
+    content, is_code=False, metadata=None, role=None, status=None, title=None
+) -> Generator:
     """
     Produce a gr.ChatMessage instance with the given content, and optional status and title metadata.
     """
@@ -252,7 +242,8 @@ def as_chat_message(content, is_code=False, status=None, title=None) -> Generato
     if is_code:
         content = _format_code_content(content)
 
-    metadata = MetadataDict()
+    if metadata is None:
+        metadata = MetadataDict()
 
     if status is None:
         status = "done"
@@ -261,8 +252,11 @@ def as_chat_message(content, is_code=False, status=None, title=None) -> Generato
     if title:
         metadata["title"] = title
 
+    if role is None:
+        role = MessageRole.ASSISTANT
+
     yield gr.ChatMessage(
-        role=MessageRole.ASSISTANT,
+        role=role,
         content=content,
         metadata=metadata,
     )
