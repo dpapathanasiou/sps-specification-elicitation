@@ -80,3 +80,7 @@ As described in the [official documentation](https://alloytools.org/documentatio
 ### 4. Unofficial [ANTLR v4](https://www.antlr.org/) grammar
 
 [Alloy.g4](https://github.com/pkriens/org.alloytools.alloy/blob/pkriens/api/org.alloytools.alloy.parser/src/main/antlr/Alloy.g4), via "[New Parser using ANTLR](https://alloytools.discourse.group/t/new-parser-using-antlr/517/6)"
+
+# Demo video
+
+[![Demo Video Screenshot](../doc/demo_video_screenshot.jpg)](https://www.youtube.com/watch?v=3LBcPdOi9F0 "Demo Video")

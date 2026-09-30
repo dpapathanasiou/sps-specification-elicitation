@@ -2,6 +2,10 @@
 
 Code, data, and notes related to my [Secure Program Synthesis Fellowship (SPS)](https://apartresearch.com/fellowships/the-secure-program-synthesis-fellowship) project.
 
+# Demo video
+
+[![Demo Video Screenshot](./doc/demo_video_screenshot.jpg)](https://www.youtube.com/watch?v=3LBcPdOi9F0 "Demo Video")
+
 ## Quickstart
 
 ### Prerequisites
