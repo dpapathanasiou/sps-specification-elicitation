@@ -12,7 +12,7 @@ from langchain_community.document_loaders import (
 )
 from langchain_community.document_loaders.generic import GenericLoader
 from langchain_community.document_loaders.parsers import LanguageParser
-from langchain_text_splitters import Language, RecursiveCharacterTextSplitter
+from langchain_text_splitters import Language
 
 from algobot.tools.rag_config import RAGConfig
 
@@ -84,34 +84,4 @@ def load_corpus(corpus_folder: Path):
 
 
 def rebuild_index(config: RAGConfig, force=False):
-    vector_store = config.vector_store
-
-    index = vector_store.get()
-    if not force and index["ids"]:
-        logger.info("Corpus already exists and is not empty, skipping rebuild")
-        return
-
-    vector_store.reset_collection()
-
-    docs_by_language = load_corpus(config.corpus_path)
-    for extension, docs in docs_by_language.items():
-        if extension in SOURCE_CODE:
-            language = SOURCE_CODE[extension]
-            logger.info(f"- indexing {len(docs)} docs for {language} ({extension})")
-            splitter = RecursiveCharacterTextSplitter.from_language(
-                language=SOURCE_CODE[extension],
-                chunk_size=config.chunk_size,
-                chunk_overlap=0,  # ovelapping programming source code is confusing
-                add_start_index=True,
-            )
-            data = splitter.split_documents(docs)
-            vector_store.add_documents(data)
-        elif extension in TEXT:
-            logger.info(f"- indexing {len(docs)} docs as text ({extension})")
-            splitter = RecursiveCharacterTextSplitter(
-                chunk_size=config.chunk_size,
-                chunk_overlap=0 if extension in ALLOY_SOURCE else config.chunk_overlap,
-                add_start_index=True,
-            )
-            data = splitter.split_documents(docs)
-            vector_store.add_documents(data)
+    logger.info("Anthropic API version: not using local corpus")

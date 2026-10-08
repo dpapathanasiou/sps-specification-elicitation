@@ -6,12 +6,23 @@ from smolagents import LiteLLMModel, ToolCallingAgent
 
 from algobot.tools.rag_config import RAGConfig
 from algobot.tools.rag_processor import rebuild_index
-from algobot.tools.rag_tool import RAGTool
 
 _ = load_dotenv()  # read the .env file from this folder, if present
 
 
 logger = logging.getLogger(__name__)
+
+
+class AnthropicCompatibleLiteLLMModel(LiteLLMModel):
+    def _prepare_completion_kwargs(self, *args, **kwargs):
+        # Let smolagents build the default payload
+        completion_kwargs = super()._prepare_completion_kwargs(*args, **kwargs)
+
+        # Intercept and override tool_choice so Anthropic doesn't throw a 400
+        if "tool_choice" in completion_kwargs:
+            completion_kwargs["tool_choice"] = "auto"
+
+        return completion_kwargs
 
 
 class AlloyBot:
@@ -20,30 +31,21 @@ class AlloyBot:
         # define the main model, based on env settings
         model_id = getenv("SPS_BOT_MODEL", "ollama/qwen3.5:4b")
         api_base = getenv("SPS_BOT_URL", "http://localhost:11434")
-        num_ctx = int(getenv("SPS_BOT_CONTEXT_SIZE", "8192"))
         model_api_key = getenv("SPS_BOT_MODEL_API_KEY")
-        if model_api_key:
-            model = LiteLLMModel(
-                model_id=model_id,
-                api_base=api_base,
-                api_key=model_api_key,
-                num_ctx=num_ctx,
-            )
-        else:
-            model = LiteLLMModel(model_id=model_id, api_base=api_base, num_ctx=num_ctx)
+        if not model_api_key:
+            raise RuntimeError("SPS_BOT_MODEL_API_KEY required")
+
+        model = AnthropicCompatibleLiteLLMModel(
+            model_id=model_id,
+            api_base=api_base,
+            api_key=model_api_key,
+        )
 
         # define the model config for the RAG processor (both models must be local Ollama)
-        self.config = RAGConfig(
-            base_model=getenv("SPS_RAG_MODEL", "gpt-oss"),
-            embed_model=getenv("SPS_EMBED_MODEL", "embeddinggemma"),
-            corpus_dir=getenv("SPS_CORPUS_DIR", "corpus"),
-            chroma_dir=getenv("SPS_CHROMA_DIR", "chroma_db"),
-        )
+        self.config = RAGConfig()
         if show_config:
             logger.info(self)
         rebuild_index(self.config, force=force_index_rebuild)
-
-        alloy_rag_tool = RAGTool(config=self.config)
 
         prompt = f"{self.config.base_prompt}\n\n"
         self.agent = ToolCallingAgent(
@@ -51,7 +53,7 @@ class AlloyBot:
             stream_outputs=True,
             planning_interval=3,
             instructions=prompt,
-            tools=[alloy_rag_tool],
+            tools=[],
         )
 
     def get_agent(self):
