@@ -2,6 +2,19 @@
 
 Code, data, and notes related to my [Secure Program Synthesis Fellowship (SPS)](https://apartresearch.com/fellowships/the-secure-program-synthesis-fellowship) project.
 
+## Abstract
+
+Even as artificial intelligence (AI) aggressively reshapes the modern software development lifecycle (SDLC), capturing requirements remains a fundamental activity. Starting with a formal specification that can be verified is particularly advantageous in an environment where source code generation is cheap, but supporting and maintaining that code can be expensive. 
+
+Software requirements in industry, however, are still communicated mostly in plain (human) language, which can be vague, imprecise, and subject to misinterpretation when it comes to implementation. We propose a new method of leveraging AI to solicit requirements, inspired by the [Pairwise Iterative-Choice Knockout (PICK)](https://www.siddharthaprasad.com/papers/pafk-pick.pdf) workflow, which relies on human feedback at critical points in the process.
+
+Our prototype enables people to write requirements in plain language, while maintaining a corresponding formal model in parallel, without having to be expert in the underlying formal syntax.
+
+---
+
+Read the [whitepaper](./doc/whitepaper.pdf) for more.
+
+
 # Demo video
 
 [![Demo Video Screenshot](./doc/demo_video_screenshot.jpg)](https://www.youtube.com/watch?v=3LBcPdOi9F0 "Demo Video")
